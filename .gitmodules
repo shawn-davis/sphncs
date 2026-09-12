@@ -1,0 +1,3 @@
+[submodule "vendor/fastmapy"]
+	path = vendor/fastmapy
+	url = https://github.com/shawn-davis/fastmapy.git

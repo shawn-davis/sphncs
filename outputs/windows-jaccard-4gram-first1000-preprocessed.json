@@ -1,0 +1,51 @@
+{
+  "source_url": "https://zenodo.org/record/3227177/files/Windows.tar.gz",
+  "archive_member": "Windows.log",
+  "records": 1000,
+  "metric": "char_ngram_jaccard",
+  "ngram_size": 4,
+  "length_partitioning": false,
+  "clustering_mode": "single",
+  "n_embeddings": 1,
+  "random_state": 7,
+  "log_filters": [
+    "timestamp",
+    "severity",
+    "uuid",
+    "ip",
+    "hex",
+    "number",
+    "path",
+    "quoted",
+    "identifier"
+  ],
+  "n_clusters": 5,
+  "representative_indices": [
+    25,
+    27,
+    28,
+    981,
+    554
+  ],
+  "representatives": [
+    "<#T> <#S>                  CBS    <#D> initialized by client WindowsUpdateAgent.",
+    "<#T> <#S>                  CBS    <#S>: Unrecognized packageExtended attribute.",
+    "<#T> <#S>                  CBS    Expecting attribute name [HRESULT = <#H> - CBS_E_MANIFEST_INVALID_ITEM]",
+    "<#T> <#S>                  CBS    Loading offline registry hive: SOFTWARE, into registry key <#Q> from path <#Q>.",
+    "<#T> <#S>                  CBS    Read out cached package applicability for package: Package_for_KB947821~31bf3856ad364e35~amd64~~<#I>, ApplicableState: <#N>, CurrentState:<#N>"
+  ],
+  "raw_representatives": [
+    "2016-09-28 04:30:31, Info                  CBS    Session: 30546173_4261722401 initialized by client WindowsUpdateAgent.",
+    "2016-09-28 04:30:31, Info                  CBS    Warning: Unrecognized packageExtended attribute.",
+    "2016-09-28 04:30:31, Info                  CBS    Expecting attribute name [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]",
+    "2016-09-29 00:00:46, Info                  CBS    Loading offline registry hive: SOFTWARE, into registry key '{bf1a281b-ad7b-4476-ac95-f47682990ce7}GLOBALROOT/Device/HarddiskVolumeShadowCopy2/Windows/System32/config/SOFTWARE' from path '\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy2\\Windows\\System32\\config\\SOFTWARE'.",
+    "2016-09-28 04:30:43, Info                  CBS    Read out cached package applicability for package: Package_for_KB947821~31bf3856ad364e35~amd64~~6.1.34.0, ApplicableState: 112, CurrentState:0"
+  ],
+  "cluster_sizes": [
+    326,
+    141,
+    101,
+    144,
+    288
+  ]
+}

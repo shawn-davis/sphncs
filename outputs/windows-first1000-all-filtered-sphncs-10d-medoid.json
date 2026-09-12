@@ -1,0 +1,12 @@
+{
+  "method": "sphncs 10D spectral",
+  "fit_seconds": 6.321785388980061,
+  "n_clusters": 17,
+  "singleton_clusters": 3,
+  "tightness": {
+    "mean_distance": 0.0732124527128126,
+    "median_distance": 0.0,
+    "p95_distance": 0.6836734693877551,
+    "within_0_25": 0.939
+  }
+}

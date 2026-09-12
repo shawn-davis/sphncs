@@ -41,7 +41,8 @@ class FastMapyEmbeddings:
 
     def __init__(
         self, n_embeddings: int, metric: Callable[[str, str], float], *,
-        random_state: int | None = None, cores: int = 1,
+        random_state: int | None = None, cores: int = 1, iters: int = 3,
+        cache_distances: bool = True,
     ):
         if n_embeddings < 1:
             raise ValueError("n_embeddings must be at least 1")
@@ -49,6 +50,8 @@ class FastMapyEmbeddings:
         self.metric = metric
         self.random_state = random_state
         self.cores = cores
+        self.iters = iters
+        self.cache_distances = cache_distances
 
     def fit(self, X: list[str]):
         if not X:
@@ -79,7 +82,15 @@ class FastMapyEmbeddings:
         try:
             if self.random_state is not None:
                 random.seed(self.random_state)
-            self.models_ = FastMap.fit_many(X, count=count, dim=1, distance=CallableDistance, cores=self.cores)
+            self.models_ = FastMap.fit_many(
+                X,
+                count=count,
+                dim=1,
+                distance=CallableDistance,
+                cores=self.cores,
+                iters=self.iters,
+                cache_distances=self.cache_distances,
+            )
         finally:
             random.setstate(rng_state)
         coordinates = np.column_stack([np.asarray(model.transform(X), dtype=float).reshape(-1) for model in self.models_])

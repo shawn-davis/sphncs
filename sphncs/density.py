@@ -21,7 +21,15 @@ class DensityModel:
         return np.searchsorted(self.boundaries, values, side="right").astype(int)
 
 
-def fit_density(values: np.ndarray, *, bandwidth: str | float = "ISJ", grid_points: int = 1024, prominence: float | None = None, min_samples: int = 3) -> DensityModel:
+def fit_density(
+    values: np.ndarray,
+    *,
+    bandwidth: str | float = "ISJ",
+    grid_points: int = 1024,
+    prominence: float | None = None,
+    prominence_fraction: float = 0.05,
+    min_samples: int = 3,
+) -> DensityModel:
     """Fit FFTKDE and turn meaningful minima into interval labels."""
     values = np.asarray(values, dtype=float).reshape(-1)
     if values.size == 0:
@@ -40,9 +48,21 @@ def fit_density(values: np.ndarray, *, bandwidth: str | float = "ISJ", grid_poin
         from KDEpy import FFTKDE
     except ImportError as exc:  # pragma: no cover - dependency declaration is authoritative
         raise ImportError("KDEpy is required; install sphncs with its runtime dependencies.") from exc
-    density = np.asarray(FFTKDE(kernel="gaussian", bw=bandwidth).fit(values).evaluate(grid), dtype=float)
+    try:
+        density = np.asarray(FFTKDE(kernel="gaussian", bw=bandwidth).fit(values).evaluate(grid), dtype=float)
+    except ValueError:
+        # ISJ can fail to find a root for small, highly discrete partitions.
+        # Keep an explicit user-selected bandwidth strict, but make the default
+        # automatic choice robust by falling back to another KDEpy rule.
+        if not isinstance(bandwidth, str) or bandwidth.upper() != "ISJ":
+            raise
+        density = np.asarray(FFTKDE(kernel="gaussian", bw="silverman").fit(values).evaluate(grid), dtype=float)
     scale = float(np.ptp(density))
-    effective_prominence = prominence if prominence is not None else max(scale * 0.05, np.finfo(float).eps)
+    effective_prominence = (
+        prominence
+        if prominence is not None
+        else max(scale * prominence_fraction, np.finfo(float).eps)
+    )
     minima, _ = find_peaks(-density, prominence=effective_prominence)
     boundaries = grid[minima]
     labels = np.searchsorted(boundaries, values, side="right").astype(int)

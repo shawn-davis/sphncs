@@ -1,0 +1,128 @@
+{
+  "method": "LogSPHNCS 10D spectral",
+  "fit_seconds": 4.877163318917155,
+  "records": 1000,
+  "fastmap_training_strings": 342,
+  "n_clusters": 16,
+  "singleton_clusters": 3,
+  "tightness": {
+    "mean_distance": 0.07483835199338813,
+    "median_distance": 0.0,
+    "p95_distance": 0.6987179487179487,
+    "within_0_25": 0.937
+  },
+  "representatives": [
+    {
+      "label": 0,
+      "size": 151,
+      "representative_index": 27,
+      "representative": "<#T> <#S>                  CBS    <#S>: Unrecognized packageExtended attribute.",
+      "raw_representative": "2016-09-28 04:30:31, Info                  CBS    Warning: Unrecognized packageExtended attribute."
+    },
+    {
+      "label": 2,
+      "size": 5,
+      "representative_index": 20,
+      "representative": "<#T> <#S>                  CSI    <#N>@<#N>/<#N>/<#N>:<#N>:<#N>:<#N> CSI perf <#S>:",
+      "raw_representative": "2016-09-28 04:30:31, Info                  CSI    00000007@2016/9/27:20:30:31.462 CSI perf trace:"
+    },
+    {
+      "label": 13,
+      "size": 6,
+      "representative_index": 2,
+      "representative": "<#T> <#S>                  CSI    <#N>@<#N>/<#N>/<#N>:<#N>:<#N>:<#N> WcpInitialize (wcp.dll version <#I>) called (stack @<#H> @<#H> @<#H> @<#H> @<#H> @<#H>)",
+      "raw_representative": "2016-09-28 04:30:31, Info                  CSI    00000001@2016/9/27:20:30:31.455 WcpInitialize (wcp.dll version 0.0.0.6) called (stack @0x7fed806eb5d @0x7fef9fb9b6d @0x7fef9f8358f @0xff83e97c @0xff83d799 @0xff83db2f)"
+    },
+    {
+      "label": 3,
+      "size": 4,
+      "representative_index": 8,
+      "representative": "<#T> <#S>                  CBS    SQM: Initializing online with Windows opt-in: False",
+      "raw_representative": "2016-09-28 04:30:31, Info                  CBS    SQM: Initializing online with Windows opt-in: False"
+    },
+    {
+      "label": 10,
+      "size": 2,
+      "representative_index": 11,
+      "representative": "<#T> <#S>                  CBS    SQM: Failed to start upload with file pattern: <#P>, flags: <#H> [HRESULT = <#H> - E_FAIL]",
+      "raw_representative": "2016-09-28 04:30:31, Info                  CBS    SQM: Failed to start upload with file pattern: C:\\Windows\\servicing\\sqm\\*_std.sqm, flags: 0x2 [HRESULT = 0x80004005 - E_FAIL]"
+    },
+    {
+      "label": 4,
+      "size": 117,
+      "representative_index": 28,
+      "representative": "<#T> <#S>                  CBS    Expecting attribute name [HRESULT = <#H> - CBS_E_MANIFEST_INVALID_ITEM]",
+      "raw_representative": "2016-09-28 04:30:31, Info                  CBS    Expecting attribute name [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]"
+    },
+    {
+      "label": 5,
+      "size": 2,
+      "representative_index": 14,
+      "representative": "<#T> <#S>                  CBS    SQM: <#S>: Failed to upload all unsent reports. [HRESULT = <#H> - E_FAIL]",
+      "raw_representative": "2016-09-28 04:30:31, Info                  CBS    SQM: Warning: Failed to upload all unsent reports. [HRESULT = 0x80004005 - E_FAIL]"
+    },
+    {
+      "label": 12,
+      "size": 2,
+      "representative_index": 15,
+      "representative": "<#T> <#S>                  CBS    No startup processing required, TrustedInstaller service was not set as autostart, or else a reboot is still pending.",
+      "raw_representative": "2016-09-28 04:30:31, Info                  CBS    No startup processing required, TrustedInstaller service was not set as autostart, or else a reboot is still pending."
+    },
+    {
+      "label": 15,
+      "size": 285,
+      "representative_index": 458,
+      "representative": "<#T> <#S>                  CBS    Read out cached package applicability for package: Package_for_KB3075220~31bf3856ad364e35~amd64~~<#I>, ApplicableState: <#N>, CurrentState:<#N>",
+      "raw_representative": "2016-09-28 04:30:37, Info                  CBS    Read out cached package applicability for package: Package_for_KB3075220~31bf3856ad364e35~amd64~~6.1.1.0, ApplicableState: 80, CurrentState:0"
+    },
+    {
+      "label": 1,
+      "size": 308,
+      "representative_index": 25,
+      "representative": "<#T> <#S>                  CBS    <#D> initialized by client WindowsUpdateAgent.",
+      "raw_representative": "2016-09-28 04:30:31, Info                  CBS    Session: 30546173_4261722401 initialized by client WindowsUpdateAgent."
+    },
+    {
+      "label": 6,
+      "size": 97,
+      "representative_index": 29,
+      "representative": "<#T> <#S>                  CBS    Failed to get next element [HRESULT = <#H> - CBS_E_MANIFEST_INVALID_ITEM]",
+      "raw_representative": "2016-09-28 04:30:31, Info                  CBS    Failed to get next element [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]"
+    },
+    {
+      "label": 7,
+      "size": 9,
+      "representative_index": 132,
+      "representative": "<#T> <#S>                  CBS    Failed to internally open package. [HRESULT = <#H> - CBS_E_INVALID_PACKAGE]",
+      "raw_representative": "2016-09-28 04:30:32, Info                  CBS    Failed to internally open package. [HRESULT = 0x800f0805 - CBS_E_INVALID_PACKAGE]"
+    },
+    {
+      "label": 8,
+      "size": 1,
+      "representative_index": 937,
+      "representative": "<#T> <#S>                  CBS    Failed to create backup log cab. [HRESULT = <#H> - ERROR_INVALID_FUNCTION]",
+      "raw_representative": "2016-09-28 04:32:17, Info                  CBS    Failed to create backup log cab. [HRESULT = 0x80070001 - ERROR_INVALID_FUNCTION]"
+    },
+    {
+      "label": 14,
+      "size": 1,
+      "representative_index": 940,
+      "representative": "<#T> <#S>                  CSI    <#N>@<#N>/<#N>/<#N>:<#N>:<#N>:<#N> CSI Transaction @<#H> initialized for deployment engine {<#U>} with flags <#N> and client id [<#N>]<#Q>",
+      "raw_representative": "2016-09-28 04:40:53, Info                  CSI    00000009@2016/9/27:20:40:53.744 CSI Transaction @0x47e9e0 initialized for deployment engine {d16d444c-56d8-11d5-882d-0080c847b195} with flags 00000002 and client id [10]\"TI6.0_0:0/\""
+    },
+    {
+      "label": 9,
+      "size": 9,
+      "representative_index": 984,
+      "representative": "<#T> <#S>                  CBS    Loading offline registry hive: SAM, into registry key <#Q> from path <#Q>.",
+      "raw_representative": "2016-09-29 00:00:46, Info                  CBS    Loading offline registry hive: SAM, into registry key '{bf1a281b-ad7b-4476-ac95-f47682990ce7}GLOBALROOT/Device/HarddiskVolumeShadowCopy2/Windows/System32/config/SAM' from path '\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy2\\Windows\\System32\\config\\SAM'."
+    },
+    {
+      "label": 11,
+      "size": 1,
+      "representative_index": 945,
+      "representative": "<#T> <#S>                  CSI    0000000c ICSITransaction::Commit calling IStorePendingTransaction::Apply - coldpatching=FALSE applyflags=<#N>",
+      "raw_representative": "2016-09-28 04:40:54, Info                  CSI    0000000c ICSITransaction::Commit calling IStorePendingTransaction::Apply - coldpatching=FALSE applyflags=7"
+    }
+  ]
+}

@@ -1,0 +1,222 @@
+{
+  "source_url": "https://zenodo.org/record/3227177/files/Windows.tar.gz",
+  "archive_member": "Windows.log",
+  "records": 1000,
+  "data_load_seconds": 1.2872029599966481,
+  "metric": "char_ngram_jaccard",
+  "ngram_size": 4,
+  "length_partitioning": true,
+  "clustering_mode": "spectral_consensus",
+  "random_state": 7,
+  "results": [
+    {
+      "n_embeddings": 5,
+      "fit_seconds": 44.47339354408905,
+      "fastmap_seconds": 42.33056814072188,
+      "density_seconds": 0.3390128151513636,
+      "spectral_seconds": 0.8051910209469497,
+      "other_seconds": 0.9986215672688559,
+      "n_length_partitions": 9,
+      "length_boundaries": [
+        104.78962818003913,
+        123.98727984344423,
+        127.82681017612525,
+        137.0416829745597,
+        149.32818003913894,
+        161.61467710371818,
+        170.82954990215262,
+        182.3481409001957
+      ],
+      "n_clusters": 18,
+      "tightness": {
+        "mean_distance": 0.1963395020411085,
+        "median_distance": 0.18110236220472442,
+        "p95_distance": 0.7650273224043715,
+        "max_distance": 1.0,
+        "within_0_25": 0.914
+      },
+      "clusters": [
+        {
+          "label": 0,
+          "size": 74,
+          "representative_index": 141,
+          "representative": "2016-09-28 04:30:32, Info                  CBS    Warning: Unrecognized packageExtended attribute.",
+          "mean_distance": 0.16359786235234602,
+          "median_distance": 0.08080808080808077,
+          "p95_distance": 0.7702702702702703,
+          "max_distance": 1.0
+        },
+        {
+          "label": 1,
+          "size": 12,
+          "representative_index": 27,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    Warning: Unrecognized packageExtended attribute.",
+          "mean_distance": 0.39785278916847105,
+          "median_distance": 0.36503090607568217,
+          "p95_distance": 0.7142857142857143,
+          "max_distance": 1.0
+        },
+        {
+          "label": 2,
+          "size": 67,
+          "representative_index": 33,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    Warning: Unrecognized packageExtended attribute.",
+          "mean_distance": 0.21316947132494085,
+          "median_distance": 0.08080808080808077,
+          "p95_distance": 0.7861635220125787,
+          "max_distance": 1.0
+        },
+        {
+          "label": 3,
+          "size": 2,
+          "representative_index": 262,
+          "representative": "2016-09-28 04:30:33, Info                  CBS    Warning: Unrecognized packageExtended attribute.",
+          "mean_distance": 0.12037037037037035,
+          "median_distance": 0.12037037037037035,
+          "p95_distance": 0.2407407407407407,
+          "max_distance": 0.2407407407407407
+        },
+        {
+          "label": 4,
+          "size": 1,
+          "representative_index": 6,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    Starting the TrustedInstaller main loop.",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 5,
+          "size": 197,
+          "representative_index": 649,
+          "representative": "2016-09-28 04:30:44, Info                  CBS    Session: 30546174_100742769 initialized by client WindowsUpdateAgent.",
+          "mean_distance": 0.27420129537140264,
+          "median_distance": 0.23664122137404575,
+          "p95_distance": 0.8167539267015707,
+          "max_distance": 0.8592233009708738
+        },
+        {
+          "label": 6,
+          "size": 22,
+          "representative_index": 134,
+          "representative": "2016-09-28 04:30:32, Info                  CBS    Session: 30546173_4271022933 initialized by client WindowsUpdateAgent.",
+          "mean_distance": 0.20623399604808965,
+          "median_distance": 0.2272727272727273,
+          "p95_distance": 0.2272727272727273,
+          "max_distance": 0.2272727272727273
+        },
+        {
+          "label": 7,
+          "size": 106,
+          "representative_index": 396,
+          "representative": "2016-09-28 04:30:35, Info                  CBS    Session: 30546174_10127586 initialized by client WindowsUpdateAgent.",
+          "mean_distance": 0.2229170887192705,
+          "median_distance": 0.23076923076923073,
+          "p95_distance": 0.23664122137404575,
+          "max_distance": 0.2442748091603053
+        },
+        {
+          "label": 8,
+          "size": 68,
+          "representative_index": 136,
+          "representative": "2016-09-28 04:30:32, Info                  CBS    Expecting attribute name [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]",
+          "mean_distance": 0.056446411965365685,
+          "median_distance": 0.0625,
+          "p95_distance": 0.1897810218978102,
+          "max_distance": 0.7587939698492463
+        },
+        {
+          "label": 9,
+          "size": 32,
+          "representative_index": 28,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    Expecting attribute name [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 10,
+          "size": 12,
+          "representative_index": 132,
+          "representative": "2016-09-28 04:30:32, Info                  CBS    Failed to internally open package. [HRESULT = 0x800f0805 - CBS_E_INVALID_PACKAGE]",
+          "mean_distance": 0.20133076799743463,
+          "median_distance": 0.06060606060606055,
+          "p95_distance": 0.6402116402116402,
+          "max_distance": 0.702020202020202
+        },
+        {
+          "label": 11,
+          "size": 98,
+          "representative_index": 29,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    Failed to get next element [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]",
+          "mean_distance": 0.05510915036435552,
+          "median_distance": 0.06153846153846154,
+          "p95_distance": 0.06153846153846154,
+          "max_distance": 0.8447488584474886
+        },
+        {
+          "label": 12,
+          "size": 2,
+          "representative_index": 13,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    SQM: Queued 0 file(s) for upload with pattern: C:\\Windows\\servicing\\sqm\\*_all.sqm, flags: 0x6",
+          "mean_distance": 0.08496732026143788,
+          "median_distance": 0.08496732026143788,
+          "p95_distance": 0.16993464052287577,
+          "max_distance": 0.16993464052287577
+        },
+        {
+          "label": 13,
+          "size": 1,
+          "representative_index": 945,
+          "representative": "2016-09-28 04:40:54, Info                  CSI    0000000c ICSITransaction::Commit calling IStorePendingTransaction::Apply - coldpatching=FALSE applyflags=7",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 14,
+          "size": 2,
+          "representative_index": 15,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    No startup processing required, TrustedInstaller service was not set as autostart, or else a reboot is still pending.",
+          "mean_distance": 0.07344632768361581,
+          "median_distance": 0.07344632768361581,
+          "p95_distance": 0.14689265536723162,
+          "max_distance": 0.14689265536723162
+        },
+        {
+          "label": 15,
+          "size": 2,
+          "representative_index": 11,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    SQM: Failed to start upload with file pattern: C:\\Windows\\servicing\\sqm\\*_std.sqm, flags: 0x2 [HRESULT = 0x80004005 - E_FAIL]",
+          "mean_distance": 0.07027027027027027,
+          "median_distance": 0.07027027027027027,
+          "p95_distance": 0.14054054054054055,
+          "max_distance": 0.14054054054054055
+        },
+        {
+          "label": 16,
+          "size": 202,
+          "representative_index": 584,
+          "representative": "2016-09-28 04:30:43, Info                  CBS    Read out cached package applicability for package: Package_for_KB2685811~31bf3856ad364e35~amd64~~6.1.1.11, ApplicableState: 112, CurrentState:112",
+          "mean_distance": 0.22380041231022635,
+          "median_distance": 0.17619047619047623,
+          "p95_distance": 0.8356940509915014,
+          "max_distance": 0.9322709163346614
+        },
+        {
+          "label": 17,
+          "size": 100,
+          "representative_index": 362,
+          "representative": "2016-09-28 04:30:33, Info                  CBS    Read out cached package applicability for package: Package_for_KB2656356~31bf3856ad364e35~amd64~~6.1.1.1, ApplicableState: 80, CurrentState:112",
+          "mean_distance": 0.2543184384361723,
+          "median_distance": 0.21126760563380287,
+          "p95_distance": 0.8961748633879781,
+          "max_distance": 0.9232804232804233
+        }
+      ]
+    }
+  ]
+}

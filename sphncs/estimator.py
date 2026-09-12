@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 import numpy as np
@@ -11,6 +12,7 @@ from scipy.sparse.csgraph import connected_components
 from .density import DensityModel, fit_density
 from .distances import StringMetric, resolve_metric
 from .embedding import FastMapyEmbeddings
+from .preprocessing import LogPreprocessor
 
 
 @dataclass
@@ -18,6 +20,7 @@ class _Partition:
     interval_label: int
     indices: np.ndarray
     fastmap: FastMapyEmbeddings
+    coordinates: np.ndarray
     density_models: list[DensityModel]
     labels: np.ndarray
     representatives: np.ndarray
@@ -45,9 +48,15 @@ class SphncsClusterer:
         grid_points: int = 1024,
         length_grid_points: int = 512,
         extrema_prominence: float | None = None,
+        extrema_prominence_fraction: float = 0.05,
         min_partition_size: int = 3,
         consensus_n_clusters: int | str = "auto",
         random_state: int | None = None,
+        fastmap_iters: int = 3,
+        fastmap_distance_cache: bool = True,
+        log_filters: str | Iterable[str] | None = None,
+        deduplicate_strings: bool = False,
+        length_partitioning_before_filtering: bool = False,
     ):
         self.metric = metric
         self.length_partitioning = length_partitioning
@@ -58,22 +67,37 @@ class SphncsClusterer:
         self.grid_points = grid_points
         self.length_grid_points = length_grid_points
         self.extrema_prominence = extrema_prominence
+        self.extrema_prominence_fraction = extrema_prominence_fraction
         self.min_partition_size = min_partition_size
         self.consensus_n_clusters = consensus_n_clusters
         self.random_state = random_state
+        self.fastmap_iters = fastmap_iters
+        self.fastmap_distance_cache = fastmap_distance_cache
+        self.log_filters = log_filters
+        self.deduplicate_strings = deduplicate_strings
+        self.length_partitioning_before_filtering = length_partitioning_before_filtering
 
     def fit(self, X: list[str], y=None):
         del y
         self._validate_parameters()
-        self.strings_ = self._validate_strings(X)
+        self.raw_strings_ = self._validate_strings(X)
+        # ``strings_`` remains an alias for backward compatibility. New code
+        # should use the explicit raw/processed learned attributes instead.
+        self.strings_ = self.raw_strings_
+        self.preprocessor_ = LogPreprocessor(self.log_filters)
+        self.processed_strings_ = self.preprocessor_.transform_many(self.raw_strings_)
         self.metric_ = resolve_metric(self.metric)
-        lengths = np.asarray([len(value) for value in self.strings_], dtype=float)
+        self.length_strings_ = (
+            self.raw_strings_ if self.length_partitioning_before_filtering else self.processed_strings_
+        )
+        lengths = np.asarray([len(value) for value in self.length_strings_], dtype=float)
         if self.length_partitioning:
             self.length_model_ = fit_density(
                 lengths,
                 bandwidth=self.length_bandwidth or self.bandwidth,
                 grid_points=self.length_grid_points,
                 prominence=self.extrema_prominence,
+                prominence_fraction=self.extrema_prominence_fraction,
                 min_samples=self.min_partition_size,
             )
             partition_labels = self.length_model_.labels
@@ -97,7 +121,8 @@ class SphncsClusterer:
         self.n_clusters_ = offset
         self.embedding_ = self._training_embedding()
         self.representative_indices_ = self._global_representatives()
-        self.representatives_ = [self.strings_[index] for index in self.representative_indices_]
+        self.representatives_ = [self.processed_strings_[index] for index in self.representative_indices_]
+        self.raw_representatives_ = [self.raw_strings_[index] for index in self.representative_indices_]
         return self
 
     def fit_predict(self, X: list[str], y=None) -> np.ndarray:
@@ -106,20 +131,27 @@ class SphncsClusterer:
     def fit_transform(self, X: list[str], y=None) -> np.ndarray:
         return self.fit(X, y).embedding_.copy()
 
+    def get_raw_string(self, index: int) -> str:
+        """Return the original string aligned with a processed training value."""
+        self._require_fitted()
+        return self.raw_strings_[index]
+
     def transform(self, X: list[str]) -> np.ndarray:
         self._require_fitted()
-        strings = self._validate_strings(X)
+        raw_strings = self._validate_strings(X)
+        strings = self.preprocessor_.transform_many(raw_strings)
         result = np.zeros((len(strings), self._components), dtype=float)
-        for label, indices in self._route(strings).items():
+        for label, indices in self._route(strings, raw_strings).items():
             result[indices] = self.partitions_[label].fastmap.transform([strings[i] for i in indices])
         return result
 
     def predict(self, X: list[str]) -> np.ndarray:
         self._require_fitted()
-        strings = self._validate_strings(X)
+        raw_strings = self._validate_strings(X)
+        strings = self.preprocessor_.transform_many(raw_strings)
         labels = np.empty(len(strings), dtype=int)
         offset = self._partition_offsets()
-        for partition_number, indices in self._route(strings).items():
+        for partition_number, indices in self._route(strings, raw_strings).items():
             partition = self.partitions_[partition_number]
             values = partition.fastmap.transform([strings[i] for i in indices])
             base_labels = np.column_stack([model.predict(values[:, dimension]) for dimension, model in enumerate(partition.density_models)])
@@ -131,14 +163,28 @@ class SphncsClusterer:
         return labels
 
     def _fit_partition(self, interval_label: int, indices: np.ndarray) -> _Partition:
-        strings = [self.strings_[index] for index in indices]
+        strings = [self.processed_strings_[index] for index in indices]
+        if self.deduplicate_strings:
+            unique_strings = list(dict.fromkeys(strings))
+            unique_indices = {value: index for index, value in enumerate(unique_strings)}
+            inverse = np.asarray([unique_indices[value] for value in strings], dtype=int)
+        else:
+            unique_strings = strings
+            inverse = np.arange(len(strings))
         components = 1 if self.clustering_mode == "single" else self.n_embeddings
-        fastmap = FastMapyEmbeddings(components, self.metric_, random_state=self.random_state)
-        coordinates = fastmap.fit_transform(strings)
+        fastmap = FastMapyEmbeddings(
+            components,
+            self.metric_,
+            random_state=self.random_state,
+            iters=self.fastmap_iters,
+            cache_distances=self.fastmap_distance_cache,
+        )
+        coordinates = fastmap.fit_transform(unique_strings)[inverse]
         density_models = [
             fit_density(
                 coordinates[:, dimension], bandwidth=self.bandwidth, grid_points=self.grid_points,
                 prominence=self.extrema_prominence, min_samples=self.min_partition_size,
+                prominence_fraction=self.extrema_prominence_fraction,
             )
             for dimension in range(components)
         ]
@@ -151,14 +197,14 @@ class SphncsClusterer:
             labels = self._spectral_labels(base_labels)
             prototypes = self._spectral_prototypes(base_labels, labels)
             representatives = self._select_consensus_representatives(indices, labels, density_models)
-        return _Partition(interval_label, indices, fastmap, density_models, labels, representatives, prototypes)
+        return _Partition(interval_label, indices, fastmap, coordinates, density_models, labels, representatives, prototypes)
 
     def _spectral_labels(self, base_labels: np.ndarray) -> np.ndarray:
         affinity = self._coassociation_graph(base_labels)
         n_samples = affinity.shape[0]
         if n_samples <= 1:
             return np.zeros(n_samples, dtype=int)
-        cluster_count = self._resolve_consensus_count(affinity)
+        cluster_count = self._resolve_consensus_count(affinity, base_labels)
         if cluster_count == 1:
             return np.zeros(n_samples, dtype=int)
         component_count, component_labels = connected_components(affinity, directed=False)
@@ -166,14 +212,14 @@ class SphncsClusterer:
             # Spectral embedding warns (correctly) on a disconnected graph. When
             # its requested count is exactly the components, the components are
             # the unambiguous spectral-consensus result already.
-            return component_labels
+            return self._coalesce_equivalent_labels(base_labels, component_labels)
         from sklearn.cluster import SpectralClustering
 
         model = SpectralClustering(
             n_clusters=cluster_count, affinity="precomputed", assign_labels="kmeans",
             random_state=self.random_state, n_init=10, n_jobs=1,
         )
-        return model.fit_predict(affinity)
+        return self._coalesce_equivalent_labels(base_labels, model.fit_predict(affinity))
 
     @staticmethod
     def _coassociation_graph(base_labels: np.ndarray) -> sparse.csr_matrix:
@@ -192,7 +238,7 @@ class SphncsClusterer:
         graph = sparse.coo_matrix((np.concatenate(data), (np.concatenate(rows), np.concatenate(cols))), shape=(n_samples, n_samples))
         return graph.tocsr()
 
-    def _resolve_consensus_count(self, affinity: sparse.csr_matrix) -> int:
+    def _resolve_consensus_count(self, affinity: sparse.csr_matrix, base_labels: np.ndarray) -> int:
         n_samples = affinity.shape[0]
         if isinstance(self.consensus_n_clusters, int):
             if not 1 <= self.consensus_n_clusters <= n_samples:
@@ -201,8 +247,28 @@ class SphncsClusterer:
         components, _ = connected_components(affinity, directed=False)
         if components > 1:
             return components
-        # A conservative default: no more consensus clusters than density modes.
-        return min(max(1, self.n_embeddings), n_samples - 1)
+        # The one-dimensional KDE fits have already observed useful cluster
+        # scales. Reduce their counts instead of treating the number of
+        # embeddings as a requested number of consensus clusters.
+        observed_counts = np.asarray(
+            [len(np.unique(base_labels[:, dimension])) for dimension in range(base_labels.shape[1])]
+        )
+        strategy = "median" if self.consensus_n_clusters == "auto" else self.consensus_n_clusters
+        reducers = {"min": np.min, "mean": np.mean, "median": np.median, "max": np.max}
+        return int(np.clip(np.rint(reducers[strategy](observed_counts)), 1, n_samples))
+
+    @staticmethod
+    def _coalesce_equivalent_labels(base_labels: np.ndarray, labels: np.ndarray) -> np.ndarray:
+        """Keep nodes with identical co-association rows in one consensus cluster."""
+        _, signatures = np.unique(base_labels, axis=0, return_inverse=True)
+        result = labels.copy()
+        for signature in np.unique(signatures):
+            members = np.flatnonzero(signatures == signature)
+            values, counts = np.unique(result[members], return_counts=True)
+            # Deterministic tie-break: the smallest existing label wins.
+            result[members] = values[np.flatnonzero(counts == counts.max())[0]]
+        _, compact = np.unique(result, return_inverse=True)
+        return compact
 
     @staticmethod
     def _spectral_prototypes(base_labels: np.ndarray, labels: np.ndarray) -> np.ndarray:
@@ -229,20 +295,24 @@ class SphncsClusterer:
             local_candidates = np.intersect1d(candidates, members)
             if not len(local_candidates):
                 local_candidates = members
-            scores = [np.mean([self.metric_(self.strings_[indices[candidate]], self.strings_[indices[member]]) for member in members]) for candidate in local_candidates]
+            scores = [np.mean([self.metric_(self.processed_strings_[indices[candidate]], self.processed_strings_[indices[member]]) for member in members]) for candidate in local_candidates]
             chosen.append(int(indices[local_candidates[int(np.argmin(scores))]]))
         return np.asarray(chosen, dtype=int)
 
-    def _route(self, strings: list[str]) -> dict[int, np.ndarray]:
+    def _route(self, strings: list[str], raw_strings: list[str] | None = None) -> dict[int, np.ndarray]:
         if not self.length_partitioning:
             return {0: np.arange(len(strings))}
+        if self.length_partitioning_before_filtering:
+            if raw_strings is None:
+                raise ValueError("raw_strings are required for raw-length partition routing")
+            strings = raw_strings
         partition = np.searchsorted(self.length_boundaries_, [len(value) for value in strings], side="right")
         return {int(label): np.flatnonzero(partition == label) for label in np.unique(partition)}
 
     def _training_embedding(self) -> np.ndarray:
         result = np.zeros((len(self.strings_), self._components), dtype=float)
         for partition in self.partitions_:
-            result[partition.indices] = partition.fastmap.coordinates_
+            result[partition.indices] = partition.coordinates
         return result
 
     def _global_representatives(self) -> np.ndarray:
@@ -268,8 +338,28 @@ class SphncsClusterer:
             raise ValueError("clustering_mode must be 'single' or 'spectral_consensus'")
         if self.clustering_mode == "spectral_consensus" and self.n_embeddings < 2:
             raise ValueError("spectral_consensus requires n_embeddings >= 2")
+        if isinstance(self.consensus_n_clusters, bool) or (
+            not isinstance(self.consensus_n_clusters, (int, str))
+        ):
+            raise TypeError("consensus_n_clusters must be an integer or one of 'auto', 'min', 'mean', 'median', 'max'")
+        if isinstance(self.consensus_n_clusters, str) and self.consensus_n_clusters not in {
+            "auto", "min", "mean", "median", "max"
+        }:
+            raise ValueError("consensus_n_clusters must be an integer or one of 'auto', 'min', 'mean', 'median', 'max'")
         if self.grid_points < 2 or self.length_grid_points < 2:
             raise ValueError("grid point counts must be at least 2")
+        if not isinstance(self.extrema_prominence_fraction, (int, float)) or isinstance(self.extrema_prominence_fraction, bool):
+            raise TypeError("extrema_prominence_fraction must be a number")
+        if not 0 < self.extrema_prominence_fraction <= 1:
+            raise ValueError("extrema_prominence_fraction must be in (0, 1]")
+        if not isinstance(self.fastmap_iters, int) or isinstance(self.fastmap_iters, bool) or self.fastmap_iters < 1:
+            raise ValueError("fastmap_iters must be a positive integer")
+        if not isinstance(self.fastmap_distance_cache, bool):
+            raise TypeError("fastmap_distance_cache must be a boolean")
+        if not isinstance(self.deduplicate_strings, bool):
+            raise TypeError("deduplicate_strings must be a boolean")
+        if not isinstance(self.length_partitioning_before_filtering, bool):
+            raise TypeError("length_partitioning_before_filtering must be a boolean")
 
     @staticmethod
     def _validate_strings(X: list[str]) -> list[str]:

@@ -1,0 +1,406 @@
+{
+  "source_url": "https://zenodo.org/record/3227177/files/Windows.tar.gz",
+  "archive_member": "Windows.log",
+  "records": 1000,
+  "data_load_seconds": 1.1962208789773285,
+  "metric": "char_ngram_jaccard",
+  "ngram_size": 4,
+  "length_partitioning": true,
+  "clustering_mode": "spectral_consensus",
+  "random_state": 7,
+  "fastmap_iters": 3,
+  "fastmap_distance_cache": true,
+  "log_filters": [
+    "timestamp",
+    "severity",
+    "uuid",
+    "ip",
+    "hex",
+    "number",
+    "path",
+    "quoted",
+    "identifier"
+  ],
+  "results": [
+    {
+      "n_embeddings": 10,
+      "fit_seconds": 6.620896725915372,
+      "fastmap_seconds": 4.866843624622561,
+      "density_seconds": 0.6560122004011646,
+      "spectral_seconds": 1.011574251926504,
+      "other_seconds": 0.08646664896514267,
+      "n_length_partitions": 11,
+      "length_boundaries": [
+        79.53522504892366,
+        81.47964774951076,
+        91.68786692759295,
+        105.7849315068493,
+        119.3958904109589,
+        133.49295499021525,
+        147.10391389432482,
+        153.42328767123286,
+        164.11761252446183,
+        173.35362035225046
+      ],
+      "n_clusters": 17,
+      "tightness": {
+        "mean_distance": 0.19622911650152533,
+        "median_distance": 0.1722488038277512,
+        "p95_distance": 0.6518518518518519,
+        "max_distance": 1.0,
+        "within_0_25": 0.644
+      },
+      "processed_tightness": {
+        "mean_distance": 0.07356251924551328,
+        "median_distance": 0.0,
+        "p95_distance": 0.6836734693877551,
+        "max_distance": 1.0,
+        "within_0_25": 0.939
+      },
+      "clusters": [
+        {
+          "label": 0,
+          "size": 151,
+          "representative_index": 27,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    Warning: Unrecognized packageExtended attribute.",
+          "mean_distance": 0.1923007504582256,
+          "median_distance": 0.08080808080808077,
+          "p95_distance": 0.7718120805369127,
+          "max_distance": 1.0
+        },
+        {
+          "label": 1,
+          "size": 308,
+          "representative_index": 25,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    Session: 30546173_4261722401 initialized by client WindowsUpdateAgent.",
+          "mean_distance": 0.27308645562221845,
+          "median_distance": 0.28148148148148144,
+          "p95_distance": 0.2867647058823529,
+          "max_distance": 0.2867647058823529
+        },
+        {
+          "label": 2,
+          "size": 3,
+          "representative_index": 20,
+          "representative": "2016-09-28 04:30:31, Info                  CSI    00000007@2016/9/27:20:30:31.462 CSI perf trace:",
+          "mean_distance": 0.2968835429196282,
+          "median_distance": 0.4067796610169492,
+          "p95_distance": 0.4838709677419355,
+          "max_distance": 0.4838709677419355
+        },
+        {
+          "label": 3,
+          "size": 4,
+          "representative_index": 8,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    SQM: Initializing online with Windows opt-in: False",
+          "mean_distance": 0.3996518624178199,
+          "median_distance": 0.42917385470576963,
+          "p95_distance": 0.7402597402597403,
+          "max_distance": 0.7402597402597403
+        },
+        {
+          "label": 4,
+          "size": 2,
+          "representative_index": 1,
+          "representative": "2016-09-28 04:30:30, Info                  CBS    Loaded Servicing Stack v6.1.7601.23505 with Core: C:\\Windows\\winsxs\\amd64_microsoft-windows-servicingstack_31bf3856ad364e35_6.1.7601.23505_none_681aa442f6fed7f0\\cbscore.dll",
+          "mean_distance": 0.05603448275862066,
+          "median_distance": 0.05603448275862066,
+          "p95_distance": 0.11206896551724133,
+          "max_distance": 0.11206896551724133
+        },
+        {
+          "label": 5,
+          "size": 117,
+          "representative_index": 28,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    Expecting attribute name [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]",
+          "mean_distance": 0.16784987530514797,
+          "median_distance": 0.0625,
+          "p95_distance": 0.8308457711442786,
+          "max_distance": 0.8644859813084113
+        },
+        {
+          "label": 6,
+          "size": 2,
+          "representative_index": 14,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    SQM: Warning: Failed to upload all unsent reports. [HRESULT = 0x80004005 - E_FAIL]",
+          "mean_distance": 0.09154929577464788,
+          "median_distance": 0.09154929577464788,
+          "p95_distance": 0.18309859154929575,
+          "max_distance": 0.18309859154929575
+        },
+        {
+          "label": 7,
+          "size": 97,
+          "representative_index": 29,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    Failed to get next element [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]",
+          "mean_distance": 0.04253105049663679,
+          "median_distance": 0.06153846153846154,
+          "p95_distance": 0.06153846153846154,
+          "max_distance": 0.18705035971223016
+        },
+        {
+          "label": 8,
+          "size": 9,
+          "representative_index": 132,
+          "representative": "2016-09-28 04:30:32, Info                  CBS    Failed to internally open package. [HRESULT = 0x800f0805 - CBS_E_INVALID_PACKAGE]",
+          "mean_distance": 0.05387205387205382,
+          "median_distance": 0.06060606060606055,
+          "p95_distance": 0.06060606060606055,
+          "max_distance": 0.06060606060606055
+        },
+        {
+          "label": 9,
+          "size": 1,
+          "representative_index": 937,
+          "representative": "2016-09-28 04:32:17, Info                  CBS    Failed to create backup log cab. [HRESULT = 0x80070001 - ERROR_INVALID_FUNCTION]",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 10,
+          "size": 9,
+          "representative_index": 981,
+          "representative": "2016-09-29 00:00:46, Info                  CBS    Loading offline registry hive: SOFTWARE, into registry key '{bf1a281b-ad7b-4476-ac95-f47682990ce7}GLOBALROOT/Device/HarddiskVolumeShadowCopy2/Windows/System32/config/SOFTWARE' from path '\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy2\\Windows\\System32\\config\\SOFTWARE'.",
+          "mean_distance": 0.2752923644804774,
+          "median_distance": 0.1768115942028986,
+          "p95_distance": 0.927360774818402,
+          "max_distance": 0.927360774818402
+        },
+        {
+          "label": 11,
+          "size": 2,
+          "representative_index": 11,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    SQM: Failed to start upload with file pattern: C:\\Windows\\servicing\\sqm\\*_std.sqm, flags: 0x2 [HRESULT = 0x80004005 - E_FAIL]",
+          "mean_distance": 0.07027027027027027,
+          "median_distance": 0.07027027027027027,
+          "p95_distance": 0.14054054054054055,
+          "max_distance": 0.14054054054054055
+        },
+        {
+          "label": 12,
+          "size": 1,
+          "representative_index": 945,
+          "representative": "2016-09-28 04:40:54, Info                  CSI    0000000c ICSITransaction::Commit calling IStorePendingTransaction::Apply - coldpatching=FALSE applyflags=7",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 13,
+          "size": 2,
+          "representative_index": 15,
+          "representative": "2016-09-28 04:30:31, Info                  CBS    No startup processing required, TrustedInstaller service was not set as autostart, or else a reboot is still pending.",
+          "mean_distance": 0.07344632768361581,
+          "median_distance": 0.07344632768361581,
+          "p95_distance": 0.14689265536723162,
+          "max_distance": 0.14689265536723162
+        },
+        {
+          "label": 14,
+          "size": 6,
+          "representative_index": 2,
+          "representative": "2016-09-28 04:30:31, Info                  CSI    00000001@2016/9/27:20:30:31.455 WcpInitialize (wcp.dll version 0.0.0.6) called (stack @0x7fed806eb5d @0x7fef9fb9b6d @0x7fef9f8358f @0xff83e97c @0xff83d799 @0xff83db2f)",
+          "mean_distance": 0.3598585993729589,
+          "median_distance": 0.384366024966588,
+          "p95_distance": 0.5633333333333334,
+          "max_distance": 0.5633333333333334
+        },
+        {
+          "label": 15,
+          "size": 1,
+          "representative_index": 940,
+          "representative": "2016-09-28 04:40:53, Info                  CSI    00000009@2016/9/27:20:40:53.744 CSI Transaction @0x47e9e0 initialized for deployment engine {d16d444c-56d8-11d5-882d-0080c847b195} with flags 00000002 and client id [10]\"TI6.0_0:0/\"",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 16,
+          "size": 285,
+          "representative_index": 360,
+          "representative": "2016-09-28 04:30:33, Info                  CBS    Read out cached package applicability for package: Package_for_KB3121255~31bf3856ad364e35~amd64~~6.1.1.0, ApplicableState: 112, CurrentState:112",
+          "mean_distance": 0.179381183680698,
+          "median_distance": 0.1722488038277512,
+          "p95_distance": 0.23720930232558135,
+          "max_distance": 0.9187675070028011
+        }
+      ],
+      "processed_clusters": [
+        {
+          "label": 0,
+          "size": 151,
+          "representative_index": 27,
+          "representative": "<#T> <#S>                  CBS    <#S>: Unrecognized packageExtended attribute.",
+          "mean_distance": 0.1467842144201047,
+          "median_distance": 0.0,
+          "p95_distance": 0.743801652892562,
+          "max_distance": 1.0
+        },
+        {
+          "label": 1,
+          "size": 308,
+          "representative_index": 25,
+          "representative": "<#T> <#S>                  CBS    <#D> initialized by client WindowsUpdateAgent.",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 2,
+          "size": 3,
+          "representative_index": 20,
+          "representative": "<#T> <#S>                  CSI    <#N>@<#N>/<#N>/<#N>:<#N>:<#N>:<#N> CSI perf <#S>:",
+          "mean_distance": 0.06593406593406592,
+          "median_distance": 0.0,
+          "p95_distance": 0.19780219780219777,
+          "max_distance": 0.19780219780219777
+        },
+        {
+          "label": 3,
+          "size": 4,
+          "representative_index": 8,
+          "representative": "<#T> <#S>                  CBS    SQM: Initializing online with Windows opt-in: False",
+          "mean_distance": 0.35433070866141736,
+          "median_distance": 0.35433070866141736,
+          "p95_distance": 0.7086614173228347,
+          "max_distance": 0.7086614173228347
+        },
+        {
+          "label": 4,
+          "size": 2,
+          "representative_index": 1,
+          "representative": "<#T> <#S>                  CBS    Loaded Servicing Stack v6.1.7601.23505 with Core: <#P>",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 5,
+          "size": 117,
+          "representative_index": 28,
+          "representative": "<#T> <#S>                  CBS    Expecting attribute name [HRESULT = <#H> - CBS_E_MANIFEST_INVALID_ITEM]",
+          "mean_distance": 0.13106905464203925,
+          "median_distance": 0.0,
+          "p95_distance": 0.834319526627219,
+          "max_distance": 0.8539325842696629
+        },
+        {
+          "label": 6,
+          "size": 2,
+          "representative_index": 14,
+          "representative": "<#T> <#S>                  CBS    SQM: <#S>: Failed to upload all unsent reports. [HRESULT = <#H> - E_FAIL]",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 7,
+          "size": 97,
+          "representative_index": 29,
+          "representative": "<#T> <#S>                  CBS    Failed to get next element [HRESULT = <#H> - CBS_E_MANIFEST_INVALID_ITEM]",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 8,
+          "size": 9,
+          "representative_index": 132,
+          "representative": "<#T> <#S>                  CBS    Failed to internally open package. [HRESULT = <#H> - CBS_E_INVALID_PACKAGE]",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 9,
+          "size": 1,
+          "representative_index": 937,
+          "representative": "<#T> <#S>                  CBS    Failed to create backup log cab. [HRESULT = <#H> - ERROR_INVALID_FUNCTION]",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 10,
+          "size": 9,
+          "representative_index": 981,
+          "representative": "<#T> <#S>                  CBS    Loading offline registry hive: SOFTWARE, into registry key <#Q> from path <#Q>.",
+          "mean_distance": 0.23009271312036622,
+          "median_distance": 0.17500000000000004,
+          "p95_distance": 0.8608247422680413,
+          "max_distance": 0.8608247422680413
+        },
+        {
+          "label": 11,
+          "size": 2,
+          "representative_index": 11,
+          "representative": "<#T> <#S>                  CBS    SQM: Failed to start upload with file pattern: <#P>, flags: <#H> [HRESULT = <#H> - E_FAIL]",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 12,
+          "size": 1,
+          "representative_index": 945,
+          "representative": "<#T> <#S>                  CSI    0000000c ICSITransaction::Commit calling IStorePendingTransaction::Apply - coldpatching=FALSE applyflags=<#N>",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 13,
+          "size": 2,
+          "representative_index": 15,
+          "representative": "<#T> <#S>                  CBS    No startup processing required, TrustedInstaller service was not set as autostart, or else a reboot is still pending.",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 14,
+          "size": 6,
+          "representative_index": 2,
+          "representative": "<#T> <#S>                  CSI    <#N>@<#N>/<#N>/<#N>:<#N>:<#N>:<#N> WcpInitialize (wcp.dll version <#I>) called (stack @<#H> @<#H> @<#H> @<#H> @<#H> @<#H>)",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 15,
+          "size": 1,
+          "representative_index": 940,
+          "representative": "<#T> <#S>                  CSI    <#N>@<#N>/<#N>/<#N>:<#N>:<#N>:<#N> CSI Transaction @<#H> initialized for deployment engine {<#U>} with flags <#N> and client id [<#N>]<#Q>",
+          "mean_distance": 0.0,
+          "median_distance": 0.0,
+          "p95_distance": 0.0,
+          "max_distance": 0.0
+        },
+        {
+          "label": 16,
+          "size": 285,
+          "representative_index": 360,
+          "representative": "<#T> <#S>                  CBS    Read out cached package applicability for package: Package_for_KB3121255~31bf3856ad364e35~amd64~~<#I>, ApplicableState: <#N>, CurrentState:<#N>",
+          "mean_distance": 0.1136037334190446,
+          "median_distance": 0.09836065573770492,
+          "p95_distance": 0.10869565217391308,
+          "max_distance": 0.9015873015873016
+        }
+      ]
+    }
+  ]
+}

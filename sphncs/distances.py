@@ -1,12 +1,49 @@
-"""String distances suitable for FastMap's on-demand metric interface."""
+"""Reusable distance metrics for SPHNCS object spaces."""
 
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Callable, Iterable
 from functools import lru_cache
-from typing import Callable
+from math import inf, isfinite
+from numbers import Real
 
+Metric = Callable[[object, object], float]
 StringMetric = Callable[[str, str], float]
+
+
+def lp_distance(left: Iterable[Real], right: Iterable[Real], p: Real = 2) -> float:
+    """Return Minkowski Lp distance between two equally sized numeric vectors.
+
+    ``p`` must be at least one. ``p=float('inf')`` returns the Chebyshev
+    (L-infinity) distance. Inputs are materialized once so any finite iterable
+    of real values is accepted.
+    """
+    if isinstance(p, bool) or not isinstance(p, Real) or p < 1:
+        raise ValueError("p must be a real number greater than or equal to 1")
+    left_values = tuple(left)
+    right_values = tuple(right)
+    if len(left_values) != len(right_values):
+        raise ValueError("vectors must have equal lengths")
+    try:
+        differences = [abs(float(a) - float(b)) for a, b in zip(left_values, right_values)]
+    except (TypeError, ValueError) as exc:
+        raise TypeError("vectors must contain real numeric values") from exc
+    if not all(isfinite(value) for value in differences):
+        raise ValueError("vectors must contain finite numeric values")
+    if p == inf:
+        return max(differences, default=0.0)
+    return float(sum(value**p for value in differences) ** (1 / p))
+
+
+def l1_distance(left: Iterable[Real], right: Iterable[Real]) -> float:
+    """Return Manhattan (L1) distance between numeric vectors."""
+    return lp_distance(left, right, p=1)
+
+
+def l2_distance(left: Iterable[Real], right: Iterable[Real]) -> float:
+    """Return Euclidean (L2) distance between numeric vectors."""
+    return lp_distance(left, right, p=2)
 
 
 @lru_cache(maxsize=32_768)
@@ -44,13 +81,15 @@ def char_ngram_jaccard(left: str, right: str, ngram_size: int = 3) -> float:
     return 1.0 - sum((grams_left & grams_right).values()) / union if union else 0.0
 
 
-METRICS: dict[str, StringMetric] = {
+METRICS: dict[str, Metric] = {
+    "l1": l1_distance,
+    "l2": l2_distance,
     "normalized_levenshtein": normalized_levenshtein,
     "char_ngram_jaccard": char_ngram_jaccard,
 }
 
 
-def resolve_metric(metric: str | StringMetric) -> StringMetric:
+def resolve_metric(metric: str | Metric) -> Metric:
     if callable(metric):
         return metric
     try:

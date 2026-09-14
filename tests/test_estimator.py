@@ -8,7 +8,7 @@ from sphncs.partitioning import normalized_shannon_entropy, shannon_entropy
 def test_single_mode_fits_and_predicts():
     pytest.importorskip("KDEpy")
     strings = ["order-001", "order-002", "invoice-900", "invoice-901"]
-    model = SphncsClusterer(random_state=0, grid_points=128).fit(strings)
+    model = SphncsClusterer(metric="normalized_levenshtein", random_state=0, grid_points=128).fit(strings)
     assert model.embedding_.shape == (4, 1)
     assert len(model.labels_) == 4
     assert model.predict(strings).shape == (4,)
@@ -18,6 +18,7 @@ def test_spectral_mode_fits():
     pytest.importorskip("KDEpy")
     strings = ["abc001", "abc002", "abc003", "xyz100", "xyz101", "xyz102"]
     model = SphncsClusterer(
+        metric="normalized_levenshtein",
         clustering_mode="spectral_consensus", n_embeddings=2,
         consensus_n_clusters=2, random_state=0, grid_points=128,
     ).fit(strings)
@@ -102,6 +103,7 @@ def test_non_length_partition_features_fit_and_route(feature):
     pytest.importorskip("KDEpy")
     strings = ["aaaa", "aaab", "abab", "abcd", "zzzz", "zzzy"]
     model = SphncsClusterer(
+        metric="normalized_levenshtein",
         length_partitioning=True,
         partitioning_feature=feature,
         grid_points=128,

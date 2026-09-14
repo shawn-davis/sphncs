@@ -1,4 +1,4 @@
-"""Syntactical pseudo-hierarchical normal clustering for strings."""
+"""Similarity-Preserving Hierarchical Nonparametric Clustering System."""
 
 from .estimator import SphncsClusterer
 from .logs import LogSPHNCS

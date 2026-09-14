@@ -85,7 +85,10 @@ class SphncsClusterer:
             from .preprocessing import LogPreprocessor
             if object_transformer is not None:
                 raise ValueError("pass either object_transformer or log_filters, not both")
-            object_transformer = LogPreprocessor(log_filters).transform
+            self._legacy_log_preprocessor = LogPreprocessor(log_filters)
+            object_transformer = self._legacy_log_preprocessor.transform
+        else:
+            self._legacy_log_preprocessor = None
 
         self.metric = metric
         self.object_transformer = object_transformer
@@ -121,6 +124,8 @@ class SphncsClusterer:
         self.objects_ = self._validate_objects(X)
         self.metric_ = self._resolve_metric()
         self.transformed_objects_ = self._transform_many(self.objects_)
+        if self._legacy_log_preprocessor is not None:
+            self.preprocessor_ = self._legacy_log_preprocessor
         self.partition_objects_ = self.objects_ if self.partitioning_before_transform else self.transformed_objects_
         if self.partitioning:
             self.partition_values_ = partition_feature_values(self.partition_objects_, self.partitioning_feature)

@@ -67,6 +67,7 @@ def test_clusterer_defaults_to_filtered_representatives_and_retains_raw_strings(
     assert model.raw_strings_ == strings
     assert model.raw_representatives_ == [strings[index] for index in model.representative_indices_]
     assert model.representatives_ == [model.processed_strings_[index] for index in model.representative_indices_]
+    assert model.preprocessor_.filters == ("timestamp", "severity", "number")
     assert model.get_raw_string(1) == strings[1]
     assert model.predict(["2027-01-01 12:00:00 DEBUG event id=999 completed"]).shape == (1,)
 

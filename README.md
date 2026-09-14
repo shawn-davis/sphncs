@@ -2,13 +2,14 @@
 
 Licensed under [Apache-2.0](LICENSE).
 
-`sphncs` (syntactical pseudo-hierarchical normal clustering for strings) clusters
-strings by embedding an on-demand string distance with FastMap and finding density
+`sphncs` is the **Similarity-Preserving Hierarchical Nonparametric Clustering
+System**. It clusters any objects with a well-defined, non-negative distance
+metric by embedding on-demand distances with FastMap and finding density
 separations with `KDEpy.FFTKDE`.
 
 It supports a lightweight single-dimension mode and an optional spectral-consensus
-mode that combines KDE cluster assignments from several FastMap dimensions.  An
-optional first KDE can partition strings by length before syntactic clustering.
+mode that combines KDE cluster assignments from several FastMap dimensions. An
+optional first KDE can partition objects with any user-supplied scalar feature.
 In spectral-consensus mode, automatic `k` is the median number of clusters
 observed by the per-dimension KDE fits, rather than the number of embeddings.
 Set `consensus_n_clusters` to `"min"`, `"mean"`, `"median"`, or `"max"` to
@@ -17,24 +18,52 @@ available when a fixed target is required.
 `extrema_prominence_fraction` controls how deep a KDE valley must be relative
 to that KDE's density range (the default is `0.05`); smaller fractions preserve
 more candidate modes.
-The estimator uses three FastMap pivot-refinement passes and a safe distance cache
-for its immutable string inputs by default; both are configurable with
+The estimator uses three FastMap pivot-refinement passes. Distance caching is
+disabled by default so mutable and unhashable objects work safely; it can be
+enabled for immutable, hashable inputs with
 `fastmap_iters` and `fastmap_distance_cache`.
 
 ```python
+from dataclasses import dataclass
+
 from sphncs import SphncsClusterer
 
-model = SphncsClusterer(metric="normalized_levenshtein")
-labels = model.fit_predict(["abc-001", "abc-002", "invoice-15", "invoice-16"])
+
+@dataclass
+class Point:
+    x: float
+
+
+def distance(left: Point, right: Point) -> float:
+    return abs(left.x - right.x)
+
+model = SphncsClusterer(metric=distance)
+labels = model.fit_predict([Point(0.0), Point(0.2), Point(10.0), Point(10.2)])
 print(model.representatives_)
 ```
 
-### Optional log-field preprocessing
+For optional first-stage partitioning, provide a scalar feature. Partitioning is
+hard routing: objects in different feature intervals are clustered separately.
 
-`log_filters` replaces selected fields with filter-specific, fixed-width masks
-before embedding and clustering. The optional initial partitioner uses filtered
-strings by default; pass `length_partitioning_before_filtering=True` to derive
-its feature from the original raw strings first. It uses length by default;
+```python
+model = SphncsClusterer(
+    metric=distance,
+    partitioning=True,
+    partitioning_feature=lambda point: point.x,
+)
+```
+
+String distances such as `normalized_levenshtein` and `char_ngram_jaccard`
+remain available in `sphncs.distances`. They are conveniences, not a restriction
+on the estimator's input type.
+
+### Log clustering
+
+`LogSPHNCS` is the log-specific adapter. Its `log_filters` replace selected
+fields with filter-specific, fixed-width masks before embedding and clustering.
+The optional initial partitioner uses filtered strings by default; pass
+`partitioning_before_transform=True` to derive its feature from the original
+raw strings first. It uses length by default;
 set `partitioning_feature="entropy"` for character Shannon entropy or
 `"normalized_entropy"` for character-use evenness. Every marker is four
 characters long: timestamps use `<#T>`, severity uses `<#S>`, UUIDs use `<#U>`,
@@ -54,15 +83,14 @@ lines remain available in the position-aligned `raw_strings_`, through
 representatives.
 
 ```python
-model = SphncsClusterer(
-    metric="char_ngram_jaccard",
+model = LogSPHNCS(
     log_filters=["timestamp", "severity", "variable"],
 )
 ```
 
 ### LogSPHNCS
 
-`LogSPHNCS` is the log-specific entry point. It defaults to all log filters,
+`LogSPHNCS` defaults to all log filters,
 4-gram Jaccard, length partitioning, 10-dimensional spectral consensus, and
 exact filtered-template compression. Raw records remain aligned in
 `raw_strings_` and `raw_representatives_`.

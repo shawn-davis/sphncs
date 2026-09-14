@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import random
 import sys
-from typing import Callable
+from collections.abc import Callable
+from pathlib import Path
 
 import numpy as np
 
@@ -40,7 +40,7 @@ class FastMapyEmbeddings:
     """
 
     def __init__(
-        self, n_embeddings: int, metric: Callable[[str, str], float], *,
+        self, n_embeddings: int, metric: Callable[[object, object], float], *,
         random_state: int | None = None, cores: int = 1, iters: int = 3,
         cache_distances: bool = True,
     ):
@@ -53,7 +53,7 @@ class FastMapyEmbeddings:
         self.iters = iters
         self.cache_distances = cache_distances
 
-    def fit(self, X: list[str]):
+    def fit(self, X: list[object]):
         if not X:
             raise ValueError("FastMap requires at least one string")
         self.X_ = list(X)
@@ -72,7 +72,7 @@ class FastMapyEmbeddings:
             def calculate(self, left, right) -> float:
                 value = float(metric(left, right))
                 if value < 0:
-                    raise ValueError("String metrics must return non-negative distances")
+                    raise ValueError("Metrics must return non-negative distances")
                 return value
 
         count = min(self.n_embeddings, len(X))
@@ -99,10 +99,10 @@ class FastMapyEmbeddings:
         self.coordinates_ = coordinates
         return self
 
-    def fit_transform(self, X: list[str]) -> np.ndarray:
+    def fit_transform(self, X: list[object]) -> np.ndarray:
         return self.fit(X).coordinates_.copy()
 
-    def transform(self, X: list[str]) -> np.ndarray:
+    def transform(self, X: list[object]) -> np.ndarray:
         if not hasattr(self, "models_"):
             raise RuntimeError("FastMap must be fitted before transform")
         if not self.models_:

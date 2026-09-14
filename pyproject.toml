@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sphncs"
-version = "0.1.0"
-description = "Syntactical pseudo-hierarchical normal clustering for strings"
+version = "0.2.0"
+description = "Similarity-Preserving Hierarchical Nonparametric Clustering System"
 requires-python = ">=3.10"
 license = "Apache-2.0"
 dependencies = [

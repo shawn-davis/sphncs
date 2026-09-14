@@ -1,11 +1,12 @@
-"""String distances suitable for FastMap's on-demand metric interface."""
+"""Convenience distances for string-valued sphncs inputs."""
 
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Callable
 from functools import lru_cache
-from typing import Callable
 
+Metric = Callable[[object, object], float]
 StringMetric = Callable[[str, str], float]
 
 
@@ -50,7 +51,7 @@ METRICS: dict[str, StringMetric] = {
 }
 
 
-def resolve_metric(metric: str | StringMetric) -> StringMetric:
+def resolve_metric(metric: str | Metric) -> Metric:
     if callable(metric):
         return metric
     try:

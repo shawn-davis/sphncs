@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 
-
 _TIMESTAMP = re.compile(
     r"\b(?:\d{4}[-/]\d{2}[-/]\d{2}|\d{2}[-/]\d{2}[-/]\d{2,4})[ T]\d{2}:\d{2}:\d{2}"
     r"(?:[.,]\d{1,6})?(?:Z|[+-]\d{2}:?\d{2})?[,]?"

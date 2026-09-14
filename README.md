@@ -32,9 +32,11 @@ print(model.representatives_)
 ### Optional log-field preprocessing
 
 `log_filters` replaces selected fields with filter-specific, fixed-width masks
-before embedding and clustering. Length partitioning uses the filtered strings
-by default; pass `length_partitioning_before_filtering=True` to partition on
-the original raw log lengths first. Every marker is four
+before embedding and clustering. The optional initial partitioner uses filtered
+strings by default; pass `length_partitioning_before_filtering=True` to derive
+its feature from the original raw strings first. It uses length by default;
+set `partitioning_feature="entropy"` for character Shannon entropy or
+`"normalized_entropy"` for character-use evenness. Every marker is four
 characters long: timestamps use `<#T>`, severity uses `<#S>`, UUIDs use `<#U>`,
 IPs use `<#I>`, hex values use `<#H>`, numbers use `<#N>`, paths use `<#P>`,
 quoted values use `<#Q>`, and identifiers use `<#D>`. Choose individual filters

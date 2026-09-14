@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from sphncs import SphncsClusterer
+from sphncs.partitioning import normalized_shannon_entropy, shannon_entropy
 
 
 def test_single_mode_fits_and_predicts():
@@ -86,3 +87,25 @@ def test_extrema_prominence_fraction_must_be_a_unit_fraction(fraction):
     model = SphncsClusterer(extrema_prominence_fraction=fraction)
     with pytest.raises(ValueError, match="extrema_prominence_fraction"):
         model._validate_parameters()
+
+
+def test_character_entropy_features_distinguish_diversity_and_evenness():
+    assert shannon_entropy("aaaa") == 0.0
+    assert shannon_entropy("aabb") == pytest.approx(1.0)
+    assert normalized_shannon_entropy("aaaa") == 0.0
+    assert normalized_shannon_entropy("aabb") == pytest.approx(1.0)
+    assert normalized_shannon_entropy("aaab") < normalized_shannon_entropy("aabb")
+
+
+@pytest.mark.parametrize("feature", ["entropy", "normalized_entropy"])
+def test_non_length_partition_features_fit_and_route(feature):
+    pytest.importorskip("KDEpy")
+    strings = ["aaaa", "aaab", "abab", "abcd", "zzzz", "zzzy"]
+    model = SphncsClusterer(
+        length_partitioning=True,
+        partitioning_feature=feature,
+        grid_points=128,
+        random_state=0,
+    ).fit(strings)
+    assert len(model.partition_values_) == len(strings)
+    assert model.predict(strings).shape == (len(strings),)

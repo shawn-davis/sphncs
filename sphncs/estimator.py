@@ -12,6 +12,7 @@ from scipy.sparse.csgraph import connected_components
 from .density import DensityModel, fit_density
 from .distances import StringMetric, resolve_metric
 from .embedding import FastMapyEmbeddings
+from .partitioning import partition_feature_values
 from .preprocessing import LogPreprocessor
 
 
@@ -57,6 +58,7 @@ class SphncsClusterer:
         log_filters: str | Iterable[str] | None = None,
         deduplicate_strings: bool = False,
         length_partitioning_before_filtering: bool = False,
+        partitioning_feature: str = "length",
     ):
         self.metric = metric
         self.length_partitioning = length_partitioning
@@ -76,6 +78,7 @@ class SphncsClusterer:
         self.log_filters = log_filters
         self.deduplicate_strings = deduplicate_strings
         self.length_partitioning_before_filtering = length_partitioning_before_filtering
+        self.partitioning_feature = partitioning_feature
 
     def fit(self, X: list[str], y=None):
         del y
@@ -87,25 +90,32 @@ class SphncsClusterer:
         self.preprocessor_ = LogPreprocessor(self.log_filters)
         self.processed_strings_ = self.preprocessor_.transform_many(self.raw_strings_)
         self.metric_ = resolve_metric(self.metric)
-        self.length_strings_ = (
+        self.partition_strings_ = (
             self.raw_strings_ if self.length_partitioning_before_filtering else self.processed_strings_
         )
-        lengths = np.asarray([len(value) for value in self.length_strings_], dtype=float)
+        # Kept for backwards compatibility. It now denotes the strings used by
+        # the first-stage partitioner, regardless of its scalar feature.
+        self.length_strings_ = self.partition_strings_
+        self.partition_values_ = partition_feature_values(self.partition_strings_, self.partitioning_feature)
         if self.length_partitioning:
-            self.length_model_ = fit_density(
-                lengths,
+            self.partition_model_ = fit_density(
+                self.partition_values_,
                 bandwidth=self.length_bandwidth or self.bandwidth,
                 grid_points=self.length_grid_points,
                 prominence=self.extrema_prominence,
                 prominence_fraction=self.extrema_prominence_fraction,
                 min_samples=self.min_partition_size,
             )
-            partition_labels = self.length_model_.labels
-            self.length_boundaries_ = self.length_model_.boundaries
+            partition_labels = self.partition_model_.labels
+            self.partition_boundaries_ = self.partition_model_.boundaries
         else:
-            self.length_model_ = None
-            self.length_boundaries_ = np.array([], dtype=float)
+            self.partition_model_ = None
+            self.partition_boundaries_ = np.array([], dtype=float)
             partition_labels = np.zeros(len(self.strings_), dtype=int)
+        # Original public learned attributes are retained for code that used
+        # length-only partitioning before feature selection was added.
+        self.length_model_ = self.partition_model_ if self.partitioning_feature == "length" else None
+        self.length_boundaries_ = self.partition_boundaries_
 
         self.partitions_: list[_Partition] = []
         labels = np.empty(len(self.strings_), dtype=int)
@@ -306,7 +316,8 @@ class SphncsClusterer:
             if raw_strings is None:
                 raise ValueError("raw_strings are required for raw-length partition routing")
             strings = raw_strings
-        partition = np.searchsorted(self.length_boundaries_, [len(value) for value in strings], side="right")
+        values = partition_feature_values(strings, self.partitioning_feature)
+        partition = np.searchsorted(self.partition_boundaries_, values, side="right")
         return {int(label): np.flatnonzero(partition == label) for label in np.unique(partition)}
 
     def _training_embedding(self) -> np.ndarray:
@@ -360,6 +371,8 @@ class SphncsClusterer:
             raise TypeError("deduplicate_strings must be a boolean")
         if not isinstance(self.length_partitioning_before_filtering, bool):
             raise TypeError("length_partitioning_before_filtering must be a boolean")
+        if self.partitioning_feature not in {"length", "entropy", "normalized_entropy"}:
+            raise ValueError("partitioning_feature must be 'length', 'entropy', or 'normalized_entropy'")
 
     @staticmethod
     def _validate_strings(X: list[str]) -> list[str]:

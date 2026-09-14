@@ -94,6 +94,12 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--raw-length-partitioning", action="store_true", help="partition on raw lengths before filtering")
     parser.add_argument("--no-length-partitioning", action="store_true", help="disable first-stage length partitioning")
+    parser.add_argument(
+        "--partitioning-feature",
+        choices=("length", "entropy", "normalized_entropy"),
+        default="length",
+        help="scalar used by the first-stage KDE partitioner",
+    )
     parser.add_argument("--ngram-size", type=int, default=4, help="character-shingle size for LogSPHNCS and evaluation")
     parser.add_argument(
         "--consensus-k",
@@ -129,6 +135,7 @@ def main() -> None:
         "random_state": 7,
         "length_partitioning": not args.no_length_partitioning,
         "length_partitioning_before_filtering": args.raw_length_partitioning,
+        "partitioning_feature": args.partitioning_feature,
         "extrema_prominence_fraction": args.prominence_fraction,
     }
     if args.consensus_k:
@@ -167,12 +174,13 @@ def main() -> None:
         if model.processed_strings_ != processed:
             raise RuntimeError("LogSPHNCS filtering differs from the benchmark input")
         labels = model.labels_
+        partition_name = args.partitioning_feature.replace("_", " ")
         method = (
-            f"LogSPHNCS (10D, Jaccard {args.ngram_size}-gram; no length partitions)"
+            f"LogSPHNCS (10D, Jaccard {args.ngram_size}-gram; no initial partitions)"
             if args.no_length_partitioning
-            else f"LogSPHNCS (10D, Jaccard {args.ngram_size}-gram; raw-length partitions)"
+            else f"LogSPHNCS (10D, Jaccard {args.ngram_size}-gram; raw-{partition_name} partitions)"
             if args.raw_length_partitioning
-            else f"LogSPHNCS (10D, Jaccard {args.ngram_size}-gram)"
+            else f"LogSPHNCS (10D, Jaccard {args.ngram_size}-gram; {partition_name} partitions)"
         )
         matrix_started = perf_counter()
         distances = pairwise_distances(processed, args.ngram_size)
@@ -197,6 +205,7 @@ def main() -> None:
         "length_partitioning_space": (
             "disabled" if args.no_length_partitioning else "raw strings" if args.raw_length_partitioning else "filtered strings"
         ),
+        "partitioning_feature": args.partitioning_feature,
         "consensus_cluster_count": args.consensus_k or "auto (median)",
         "extrema_prominence_fraction": args.prominence_fraction,
         "ensemble_runs": ensemble_runs,

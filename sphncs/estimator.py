@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
+from os import PathLike
+from pathlib import Path
 
 import numpy as np
 from scipy import sparse
@@ -174,6 +176,23 @@ class SphncsClusterer:
 
     def fit_transform(self, X: Iterable[object], y=None) -> np.ndarray:
         return self.fit(X, y).embedding_.copy()
+
+    def save(self, path: str | PathLike[str]) -> Path:
+        """Atomically save this fitted model to a versioned archive.
+
+        Archives use Python pickle for arbitrary objects and callables, so load
+        them only when they originate from a trusted source.
+        """
+        from .persistence import save_model
+
+        return save_model(self, path)
+
+    @classmethod
+    def load(cls, path: str | PathLike[str]):
+        """Load a trusted, versioned model archive created by :meth:`save`."""
+        from .persistence import load_model
+
+        return load_model(path, cls)
 
     def get_object(self, index: int) -> object:
         """Return an original training object by its position-aligned index."""

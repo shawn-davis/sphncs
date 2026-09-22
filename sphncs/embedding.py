@@ -5,6 +5,7 @@ from __future__ import annotations
 import random
 import sys
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -29,6 +30,62 @@ def _load_fastmap():
         "project submodule with `git submodule update --init --recursive` and "
         "`python -m pip install -e vendor/fastmapy`."
     )
+
+
+@dataclass
+class _StoredPivot:
+    """Pickle-safe representation of a fastmapy pivot."""
+
+    left: object
+    left_proj: np.ndarray
+    right: object
+    right_proj: np.ndarray
+    distance: float
+
+
+class _StoredFastMapModel:
+    """A package-owned FastMap projection used when reloading a saved model."""
+
+    def __init__(self, metric: Callable[[object, object], float], pivots: list[_StoredPivot], dim: int):
+        self._metric = metric
+        self._pivots = pivots
+        self._dim = dim
+
+    @classmethod
+    def from_fastmap(cls, model, metric: Callable[[object, object], float]):
+        try:
+            pivots = [
+                _StoredPivot(
+                    pivot.left,
+                    np.asarray(pivot.left_proj, dtype=float).copy(),
+                    pivot.right,
+                    np.asarray(pivot.right_proj, dtype=float).copy(),
+                    float(pivot.distance),
+                )
+                for pivot in model._pivots
+            ]
+            return cls(metric, pivots, int(model._dim))
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise TypeError("unsupported fastmapy model state") from exc
+
+    def _dist(self, left, left_proj, right, right_proj, index: int) -> float:
+        squared = float(self._metric(left, right)) ** 2
+        residual = float(np.sum((left_proj[:index] - right_proj[:index]) ** 2))
+        return float(np.sqrt(max(squared - residual, 0.0)))
+
+    def _projection(self, value: object, index: int) -> np.ndarray:
+        projection = np.zeros(self._dim)
+        for dimension in range(index):
+            pivot = self._pivots[dimension]
+            if pivot.distance == 0:
+                continue
+            left_distance = self._dist(pivot.left, pivot.left_proj, value, projection, index)
+            right_distance = self._dist(pivot.right, pivot.right_proj, value, projection, index)
+            projection[dimension] = (left_distance**2 + pivot.distance**2 - right_distance**2) / (2 * pivot.distance)
+        return projection
+
+    def transform(self, X: list[object]) -> list[np.ndarray]:
+        return [self._projection(value, self._dim) for value in X]
 
 
 class FastMapyEmbeddings:
@@ -111,3 +168,15 @@ class FastMapyEmbeddings:
         if coordinates.shape[1] < self.n_embeddings:
             coordinates = np.pad(coordinates, ((0, 0), (0, self.n_embeddings - coordinates.shape[1])))
         return coordinates
+
+    def __getstate__(self):
+        """Replace fastmapy's non-pickleable local distance class on save."""
+        state = self.__dict__.copy()
+        if "models_" in state:
+            state["models_"] = [
+                model
+                if isinstance(model, _StoredFastMapModel)
+                else _StoredFastMapModel.from_fastmap(model, self.metric)
+                for model in state["models_"]
+            ]
+        return state

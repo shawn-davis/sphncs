@@ -101,6 +101,24 @@ from sphncs import LogSPHNCS
 model = LogSPHNCS().fit(log_lines)
 ```
 
+### Model persistence
+
+Fitted models can be saved to a versioned, integrity-checked `.sphncs` archive
+and loaded later. The archive preserves prediction and transformation state,
+including the FastMap pivots.
+
+```python
+model.save("logs.sphncs")
+restored = LogSPHNCS.load("logs.sphncs")
+assert restored.predict(log_lines).tolist() == model.predict(log_lines).tolist()
+```
+
+Archives use Python pickle to support arbitrary input objects and user-supplied
+metrics or transformers. Only load archives from sources you trust. Callables
+must be importable functions (rather than lambdas or nested functions) to save
+reliably. Format version 1 is validated on load; unsupported future formats are
+rejected rather than loaded incorrectly.
+
 `fastmapy` is included as the `vendor/fastmapy` Git submodule and isolated behind
 an embedding adapter. It is used for all FastMap fits, including its `fit_many`
 API for spectral-consensus embeddings; no pairwise string-distance matrix is

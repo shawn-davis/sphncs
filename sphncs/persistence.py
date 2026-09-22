@@ -11,11 +11,11 @@ import copy
 import hashlib
 import json
 import os
-from pathlib import Path
 import pickle
 import tempfile
-from typing import TYPE_CHECKING, TypeVar
 import zipfile
+from pathlib import Path
+from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from .estimator import SphncsClusterer
@@ -31,7 +31,7 @@ class ModelPersistenceError(ValueError):
     """Raised when a model archive is malformed, incompatible, or unusable."""
 
 
-def save_model(model: "SphncsClusterer", path: str | os.PathLike[str]) -> Path:
+def save_model(model: SphncsClusterer, path: str | os.PathLike[str]) -> Path:
     """Atomically save a fitted model to a versioned ``.sphncs`` archive."""
     model._require_fitted()
     target = Path(path)
@@ -135,7 +135,7 @@ def load_model(path: str | os.PathLike[str], expected_type: type[_T]) -> _T:
     return model
 
 
-def _copy_without_fastmaps(model: "SphncsClusterer") -> "SphncsClusterer":
+def _copy_without_fastmaps(model: SphncsClusterer) -> SphncsClusterer:
     copy_model = copy.copy(model)
     copy_model.partitions_ = []
     for partition in model.partitions_:
@@ -147,7 +147,7 @@ def _copy_without_fastmaps(model: "SphncsClusterer") -> "SphncsClusterer":
     return copy_model
 
 
-def _save_fastmaps(model: "SphncsClusterer", staging: Path) -> list[list[str]]:
+def _save_fastmaps(model: SphncsClusterer, staging: Path) -> list[list[str]]:
     entries: list[list[str]] = []
     for partition_index, partition in enumerate(model.partitions_):
         paths = partition.fastmap.save_models(staging / "fastmaps" / str(partition_index))

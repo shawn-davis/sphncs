@@ -226,7 +226,7 @@ class SphncsClusterer:
             partition = self.partitions_[partition_number]
             values = partition.fastmap.transform([transformed[index] for index in indices])
             base_labels = np.column_stack([model.predict(values[:, dimension]) for dimension, model in enumerate(partition.density_models)])
-            local = base_labels[:, 0] if self.clustering_mode == "single" else self._predict_spectral(base_labels, partition.spectral_prototypes_)
+            local = base_labels[:, 0] if self.clustering_mode == "single" else self._predict_spectral(base_labels, partition.spectral_prototypes)
             labels[indices] = local + offset[partition_number]
         return labels
 

@@ -18,10 +18,8 @@ available when a fixed target is required.
 `extrema_prominence_fraction` controls how deep a KDE valley must be relative
 to that KDE's density range (the default is `0.05`); smaller fractions preserve
 more candidate modes.
-The estimator uses three FastMap pivot-refinement passes. Distance caching is
-disabled by default so mutable and unhashable objects work safely; it can be
-enabled for immutable, hashable inputs with
-`fastmap_iters` and `fastmap_distance_cache`.
+The estimator uses three FastMap pivot-refinement passes. Configure the number
+of passes with `fastmap_iters`.
 
 ```python
 from dataclasses import dataclass
@@ -100,6 +98,24 @@ from sphncs import LogSPHNCS
 
 model = LogSPHNCS().fit(log_lines)
 ```
+
+### Model persistence
+
+Fitted models can be saved to a versioned, integrity-checked `.sphncs` archive
+and loaded later. The archive preserves prediction and transformation state.
+Each FastMap projection is persisted with FastMapy’s native versioned format.
+
+```python
+model.save("logs.sphncs")
+restored = LogSPHNCS.load("logs.sphncs")
+assert restored.predict(log_lines).tolist() == model.predict(log_lines).tolist()
+```
+
+Archives use Python pickle to support arbitrary input objects and user-supplied
+metrics or transformers. Only load archives from sources you trust. Callables
+must be importable functions (rather than lambdas or nested functions) to save
+reliably. Format version 1 is validated on load; unsupported future formats are
+rejected rather than loaded incorrectly.
 
 `fastmapy` is included as the `vendor/fastmapy` Git submodule and isolated behind
 an embedding adapter. It is used for all FastMap fits, including its `fit_many`

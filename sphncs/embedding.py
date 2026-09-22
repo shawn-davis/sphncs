@@ -13,15 +13,15 @@ import numpy as np
 def _load_fastmap():
     """Import the installed package or the checked-out project submodule."""
     try:
-        from fastmap import Distance, FastMap
-        return Distance, FastMap
+        from fastmap import FastMap
+        return FastMap
     except ImportError:
         submodule = Path(__file__).resolve().parent.parent / "vendor" / "fastmapy"
         if submodule.is_dir():
             sys.path.insert(0, str(submodule))
             try:
-                from fastmap import Distance, FastMap
-                return Distance, FastMap
+                from fastmap import FastMap
+                return FastMap
             except ImportError:
                 pass
     raise ImportError(
@@ -29,6 +29,23 @@ def _load_fastmap():
         "project submodule with `git submodule update --init --recursive` and "
         "`python -m pip install -e vendor/fastmapy`."
     )
+
+
+class _CallableDistance:
+    """FastMapy-compatible, pickleable wrapper for an SPHNCS metric callable."""
+
+    def __init__(self, metric: Callable[[object, object], float]):
+        self.metric = metric
+
+    @staticmethod
+    def get_name() -> str:
+        return "sphncs_metric"
+
+    def calculate(self, left: object, right: object) -> float:
+        value = float(self.metric(left, right))
+        if value < 0:
+            raise ValueError("Metrics must return non-negative distances")
+        return value
 
 
 class FastMapyEmbeddings:
@@ -61,19 +78,7 @@ class FastMapyEmbeddings:
             self.models_ = []
             self.coordinates_ = np.zeros((1, self.n_embeddings), dtype=float)
             return self
-        Distance, FastMap = _load_fastmap()
-        metric = self.metric
-
-        class CallableDistance(Distance):
-            @staticmethod
-            def get_name():
-                return getattr(metric, "__name__", "sphncs_metric")
-
-            def calculate(self, left, right) -> float:
-                value = float(metric(left, right))
-                if value < 0:
-                    raise ValueError("Metrics must return non-negative distances")
-                return value
+        FastMap = _load_fastmap()
 
         count = min(self.n_embeddings, len(X))
         # fastmapy currently draws its pivot starts from Python's module-level
@@ -86,10 +91,10 @@ class FastMapyEmbeddings:
                 X,
                 count=count,
                 dim=1,
-                distance=CallableDistance,
+                distance=_CallableDistance,
+                dist_args={"metric": self.metric},
                 cores=self.cores,
                 iters=self.iters,
-                cache_distances=self.cache_distances,
             )
         finally:
             random.setstate(rng_state)
@@ -111,3 +116,21 @@ class FastMapyEmbeddings:
         if coordinates.shape[1] < self.n_embeddings:
             coordinates = np.pad(coordinates, ((0, 0), (0, self.n_embeddings - coordinates.shape[1])))
         return coordinates
+
+
+    def save_models(self, directory: Path) -> list[Path]:
+        """Persist each fitted projection through FastMapy's native format."""
+        if not hasattr(self, "models_"):
+            raise RuntimeError("FastMap must be fitted before it can be saved")
+        directory.mkdir(parents=True, exist_ok=True)
+        paths: list[Path] = []
+        for index, model in enumerate(self.models_):
+            path = directory / f"{index}.fastmap"
+            model.save(path)
+            paths.append(path)
+        return paths
+
+    def load_models(self, paths: list[Path]) -> None:
+        """Restore fitted projections through FastMapy's native loader."""
+        FastMap = _load_fastmap()
+        self.models_ = [FastMap.load(path) for path in paths]

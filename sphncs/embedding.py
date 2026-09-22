@@ -5,7 +5,6 @@ from __future__ import annotations
 import random
 import sys
 from collections.abc import Callable
-from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -14,15 +13,15 @@ import numpy as np
 def _load_fastmap():
     """Import the installed package or the checked-out project submodule."""
     try:
-        from fastmap import Distance, FastMap
-        return Distance, FastMap
+        from fastmap import FastMap
+        return FastMap
     except ImportError:
         submodule = Path(__file__).resolve().parent.parent / "vendor" / "fastmapy"
         if submodule.is_dir():
             sys.path.insert(0, str(submodule))
             try:
-                from fastmap import Distance, FastMap
-                return Distance, FastMap
+                from fastmap import FastMap
+                return FastMap
             except ImportError:
                 pass
     raise ImportError(
@@ -32,60 +31,21 @@ def _load_fastmap():
     )
 
 
-@dataclass
-class _StoredPivot:
-    """Pickle-safe representation of a fastmapy pivot."""
+class _CallableDistance:
+    """FastMapy-compatible, pickleable wrapper for an SPHNCS metric callable."""
 
-    left: object
-    left_proj: np.ndarray
-    right: object
-    right_proj: np.ndarray
-    distance: float
+    def __init__(self, metric: Callable[[object, object], float]):
+        self.metric = metric
 
+    @staticmethod
+    def get_name() -> str:
+        return "sphncs_metric"
 
-class _StoredFastMapModel:
-    """A package-owned FastMap projection used when reloading a saved model."""
-
-    def __init__(self, metric: Callable[[object, object], float], pivots: list[_StoredPivot], dim: int):
-        self._metric = metric
-        self._pivots = pivots
-        self._dim = dim
-
-    @classmethod
-    def from_fastmap(cls, model, metric: Callable[[object, object], float]):
-        try:
-            pivots = [
-                _StoredPivot(
-                    pivot.left,
-                    np.asarray(pivot.left_proj, dtype=float).copy(),
-                    pivot.right,
-                    np.asarray(pivot.right_proj, dtype=float).copy(),
-                    float(pivot.distance),
-                )
-                for pivot in model._pivots
-            ]
-            return cls(metric, pivots, int(model._dim))
-        except (AttributeError, TypeError, ValueError) as exc:
-            raise TypeError("unsupported fastmapy model state") from exc
-
-    def _dist(self, left, left_proj, right, right_proj, index: int) -> float:
-        squared = float(self._metric(left, right)) ** 2
-        residual = float(np.sum((left_proj[:index] - right_proj[:index]) ** 2))
-        return float(np.sqrt(max(squared - residual, 0.0)))
-
-    def _projection(self, value: object, index: int) -> np.ndarray:
-        projection = np.zeros(self._dim)
-        for dimension in range(index):
-            pivot = self._pivots[dimension]
-            if pivot.distance == 0:
-                continue
-            left_distance = self._dist(pivot.left, pivot.left_proj, value, projection, index)
-            right_distance = self._dist(pivot.right, pivot.right_proj, value, projection, index)
-            projection[dimension] = (left_distance**2 + pivot.distance**2 - right_distance**2) / (2 * pivot.distance)
-        return projection
-
-    def transform(self, X: list[object]) -> list[np.ndarray]:
-        return [self._projection(value, self._dim) for value in X]
+    def calculate(self, left: object, right: object) -> float:
+        value = float(self.metric(left, right))
+        if value < 0:
+            raise ValueError("Metrics must return non-negative distances")
+        return value
 
 
 class FastMapyEmbeddings:
@@ -118,19 +78,7 @@ class FastMapyEmbeddings:
             self.models_ = []
             self.coordinates_ = np.zeros((1, self.n_embeddings), dtype=float)
             return self
-        Distance, FastMap = _load_fastmap()
-        metric = self.metric
-
-        class CallableDistance(Distance):
-            @staticmethod
-            def get_name():
-                return getattr(metric, "__name__", "sphncs_metric")
-
-            def calculate(self, left, right) -> float:
-                value = float(metric(left, right))
-                if value < 0:
-                    raise ValueError("Metrics must return non-negative distances")
-                return value
+        FastMap = _load_fastmap()
 
         count = min(self.n_embeddings, len(X))
         # fastmapy currently draws its pivot starts from Python's module-level
@@ -143,10 +91,10 @@ class FastMapyEmbeddings:
                 X,
                 count=count,
                 dim=1,
-                distance=CallableDistance,
+                distance=_CallableDistance,
+                dist_args={"metric": self.metric},
                 cores=self.cores,
                 iters=self.iters,
-                cache_distances=self.cache_distances,
             )
         finally:
             random.setstate(rng_state)
@@ -169,14 +117,20 @@ class FastMapyEmbeddings:
             coordinates = np.pad(coordinates, ((0, 0), (0, self.n_embeddings - coordinates.shape[1])))
         return coordinates
 
-    def __getstate__(self):
-        """Replace fastmapy's non-pickleable local distance class on save."""
-        state = self.__dict__.copy()
-        if "models_" in state:
-            state["models_"] = [
-                model
-                if isinstance(model, _StoredFastMapModel)
-                else _StoredFastMapModel.from_fastmap(model, self.metric)
-                for model in state["models_"]
-            ]
-        return state
+
+    def save_models(self, directory: Path) -> list[Path]:
+        """Persist each fitted projection through FastMapy's native format."""
+        if not hasattr(self, "models_"):
+            raise RuntimeError("FastMap must be fitted before it can be saved")
+        directory.mkdir(parents=True, exist_ok=True)
+        paths: list[Path] = []
+        for index, model in enumerate(self.models_):
+            path = directory / f"{index}.fastmap"
+            model.save(path)
+            paths.append(path)
+        return paths
+
+    def load_models(self, paths: list[Path]) -> None:
+        """Restore fitted projections through FastMapy's native loader."""
+        FastMap = _load_fastmap()
+        self.models_ = [FastMap.load(path) for path in paths]

@@ -18,10 +18,8 @@ available when a fixed target is required.
 `extrema_prominence_fraction` controls how deep a KDE valley must be relative
 to that KDE's density range (the default is `0.05`); smaller fractions preserve
 more candidate modes.
-The estimator uses three FastMap pivot-refinement passes. Distance caching is
-disabled by default so mutable and unhashable objects work safely; it can be
-enabled for immutable, hashable inputs with
-`fastmap_iters` and `fastmap_distance_cache`.
+The estimator uses three FastMap pivot-refinement passes. Configure the number
+of passes with `fastmap_iters`.
 
 ```python
 from dataclasses import dataclass
@@ -104,8 +102,8 @@ model = LogSPHNCS().fit(log_lines)
 ### Model persistence
 
 Fitted models can be saved to a versioned, integrity-checked `.sphncs` archive
-and loaded later. The archive preserves prediction and transformation state,
-including the FastMap pivots.
+and loaded later. The archive preserves prediction and transformation state.
+Each FastMap projection is persisted with FastMapy’s native versioned format.
 
 ```python
 model.save("logs.sphncs")

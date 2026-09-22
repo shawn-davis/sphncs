@@ -19,6 +19,8 @@ def test_saved_generic_model_round_trips_predictions_and_embeddings(tmp_path):
     assert np.allclose(restored.transform(values), model.transform(values))
     assert restored.predict(values).tolist() == model.predict(values).tolist()
     assert restored.representatives_ == model.representatives_
+    with ZipFile(path) as archive:
+        assert any(name.startswith("fastmaps/") for name in archive.namelist())
 
 
 def test_saved_log_model_round_trips_subclass_and_filtered_predictions(tmp_path):
@@ -47,11 +49,11 @@ def test_load_rejects_checksum_mismatch(tmp_path):
     model = SphncsClusterer(metric="normalized_levenshtein", grid_points=128).fit(["a", "b"])
     path = model.save(tmp_path / "model.sphncs")
     with ZipFile(path) as archive:
-        manifest = archive.read("manifest.json")
-        payload = archive.read("model.pkl") + b"tampered"
+        contents = {name: archive.read(name) for name in archive.namelist()}
+    contents["estimator.pkl"] += b"tampered"
     with ZipFile(path, "w", compression=ZIP_DEFLATED) as archive:
-        archive.writestr("manifest.json", manifest)
-        archive.writestr("model.pkl", payload)
+        for name, payload in contents.items():
+            archive.writestr(name, payload)
 
     with pytest.raises(ModelPersistenceError, match="integrity"):
         SphncsClusterer.load(path)

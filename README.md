@@ -114,7 +114,7 @@ assert restored.predict(log_lines).tolist() == model.predict(log_lines).tolist()
 Archives use Python pickle to support arbitrary input objects and user-supplied
 metrics or transformers. Only load archives from sources you trust. Callables
 must be importable functions (rather than lambdas or nested functions) to save
-reliably. Format version 1 is validated on load; unsupported future formats are
+reliably. Format version 2 is validated on load; unsupported future formats are
 rejected rather than loaded incorrectly.
 
 `fastmapy` is included as the `vendor/fastmapy` Git submodule and isolated behind

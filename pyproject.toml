@@ -6,8 +6,23 @@ build-backend = "setuptools.build_meta"
 name = "sphncs"
 version = "0.3.0"
 description = "Similarity-Preserving Hierarchical Nonparametric Clustering System"
+readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
+authors = [{ name = "Shawn Davis" }]
+keywords = ["clustering", "density-estimation", "fastmap", "log-analysis", "machine-learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3 :: 10",
+    "Programming Language :: Python :: 3 :: 11",
+    "Programming Language :: Python :: 3 :: 12",
+    "Programming Language :: Python :: 3 :: 13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
     "numpy>=1.24",
     "scipy>=1.10",
@@ -19,6 +34,11 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=7.4", "ruff>=0.4"]
 bench = ["rapidfuzz>=3.14", "matplotlib>=3.8", "drain3>=0.9.11"]
+
+[project.urls]
+Homepage = "https://github.com/shawn-davis/sphncs"
+Repository = "https://github.com/shawn-davis/sphncs"
+Issues = "https://github.com/shawn-davis/sphncs/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

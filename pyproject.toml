@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sphncs"
-version = "0.3.0"
+version = "0.3.1"
 description = "Similarity-Preserving Hierarchical Nonparametric Clustering System"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -17,10 +17,10 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3 :: 10",
-    "Programming Language :: Python :: 3 :: 11",
-    "Programming Language :: Python :: 3 :: 12",
-    "Programming Language :: Python :: 3 :: 13",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
